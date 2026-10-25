@@ -1,0 +1,1 @@
+recursive-include miraihr_core *.json *.js *.css *.svg *.txt

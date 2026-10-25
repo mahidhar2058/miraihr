@@ -10,6 +10,8 @@ This specification establishes the indian payroll decisions and P1 implementatio
 
 Frappe HRMS provides payroll workflows; India Payroll release notes for v16 describe EPF, ESI, state professional tax, LWF, income-tax regimes, exemptions, marginal relief, and statutory registers. This is not proof that the rules are current for a given payroll period or that the app works with the candidate Frappe major. Before customer use, a qualified Indian payroll specialist must validate effective-date rules, state configuration, rounding, eligibility thresholds, sample salary slips, statutory registers, and amendment behavior against current authoritative rules. Never treat generated calculations as legal or tax advice. Payroll data stays within tenant site and private encrypted storage.
 
+The selected candidate is India Payroll `v16.0.4`, whose tagged metadata declares Frappe/ERPNext/HRMS v16. However, upstream issue [#134](https://github.com/frappe/india-payroll/issues/134) reports an employer ESIC overstatement for partial-month pay on a v16 environment. P1 must add the reported example to payroll regression fixtures and verify the candidate tag's behavior before any payroll readiness claim. No upstream code workaround is introduced here.
+
 ## Area-specific design
 
 Reuse HRMS payroll and evaluate India Payroll for statutory deductions and reports. Validate payroll periods, effective-dated rule tables, state PT/LWF, PF/ESI eligibility, rounding, tax regime, declarations, arrears, and sample payslips with a qualified Indian payroll reviewer.

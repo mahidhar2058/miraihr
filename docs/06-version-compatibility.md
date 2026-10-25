@@ -6,6 +6,26 @@
 
 This specification establishes the version compatibility decisions and P1 implementation gates for an independent, white-label HRMS SaaS based on supported Frappe applications. It excludes MiraiTeams, payment gateways, and P0 deployment.
 
+## P1 v16 candidate set (2026-10-26)
+
+| App | Candidate release | Declared constraint / evidence | Decision |
+|---|---|---|---|
+| Frappe | `v16.53.0` (`e8d41dd`) | v16 release; Python `>=3.14,<3.15`; Node 24+ in v16 migration guide | Pin candidate |
+| ERPNext | `v16.52.1` (`ade850b`) | v16 release; same major as Frappe | Pin candidate |
+| HRMS | `v16.52.0` (`5c72c06`) | Frappe and ERPNext `>=16.50,<17` | Pin candidate |
+| India Payroll | `v16.0.4` (`2f033e4`) | Tagged metadata requires Python >=3.14 and Frappe/ERPNext/HRMS `>=16,<17` | Pin candidate; payroll blocked on regression evidence |
+| Helpdesk | `v1.31.0` (`7d7e394`) | Tagged metadata requires Frappe `>=15.123.1,<17` and Telephony `>=0.0.1,<1` | Pin candidate; Telephony transitive app still needs exact pin |
+| Learning | `version-16` branch | Raw branch metadata requires Frappe `>=16,<17` and Payments `>=0.0.1,<1`; no exact commit captured | Do not include in image lock until commit and Payments are pinned |
+| Lending | Excluded from P1 installed set | Not required for initial release; exact same-site validation is deferred | Evaluate separately if scope changes |
+
+This is a **machine-readable candidate lock**, not accepted compatibility. Exact release tags and observed short commit prefixes are in [dependencies.lock.json](../deployment/dependencies.lock.json). Lock acceptance requires full commit resolution, image digests, Bench installation, module install, migrations, and functional smoke tests. The official branch metadata supports a plausible v16 combination, but does not prove the selected releases work together.
+
+### Runtime and blocking validation
+
+Frappe v16 requires Python 3.14 and Node.js 24+ per the official migration guide. This workstation has Python 3.12.1 and Node 20.11.0; Bench and Helm are absent. Docker is installed but the engine named pipe denies access; WSL also returns access denied. Therefore Bench initialization, installation, migration, container build, Helm rendering, and application smoke tests are BLOCKED here. Do not label the stack compatible until those gates run elsewhere.
+
+India Payroll issue [#134](https://github.com/frappe/india-payroll/issues/134), opened 2026-10-06, describes employer ESIC being overwritten with a full-month amount for prorated pay on a v16 stack. Until a regression case passes on the selected release, Indian payroll must not be represented as commercially ready.
+
 ## Provisional matrix (not an install lock)
 
 | Component | Candidate | Dependencies / install | Evidence and decision |

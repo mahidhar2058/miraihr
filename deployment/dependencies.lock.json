@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "product": "MiraiHR",
+  "checked_at": "2026-10-26",
+  "lock_status": "candidate_unvalidated",
+  "lock_status_reason": "The candidate app tags have compatible declared version ranges, but installation, migrations, functional tests, full commit resolution, and runtime image digests have not been verified.",
+  "runtime": {
+    "python": "3.14.x",
+    "nodejs": "24.x",
+    "database": "MariaDB; exact supported patch and image digest require upstream deployment validation",
+    "redis": "Exact supported patch and image digest require upstream deployment validation"
+  },
+  "applications": [
+    {
+      "name": "frappe",
+      "repository": "https://github.com/frappe/frappe",
+      "ref_type": "release_tag",
+      "ref": "v16.53.0",
+      "observed_commit_prefix": "e8d41dd",
+      "image_digest": null,
+      "installed": false,
+      "validation": "not_run_runtime_unavailable"
+    },
+    {
+      "name": "erpnext",
+      "repository": "https://github.com/frappe/erpnext",
+      "ref_type": "release_tag",
+      "ref": "v16.52.1",
+      "observed_commit_prefix": "ade850b",
+      "image_digest": null,
+      "installed": false,
+      "validation": "not_run_runtime_unavailable"
+    },
+    {
+      "name": "hrms",
+      "repository": "https://github.com/frappe/hrms",
+      "ref_type": "release_tag",
+      "ref": "v16.52.0",
+      "observed_commit_prefix": "5c72c06",
+      "image_digest": null,
+      "installed": false,
+      "validation": "not_run_runtime_unavailable"
+    },
+    {
+      "name": "india_payroll",
+      "repository": "https://github.com/frappe/india-payroll",
+      "ref_type": "release_tag",
+      "ref": "v16.0.4",
+      "observed_commit_prefix": "2f033e4",
+      "image_digest": null,
+      "installed": false,
+      "validation": "blocked_by_payroll_regression_gate",
+      "known_issue": "https://github.com/frappe/india-payroll/issues/134"
+    },
+    {
+      "name": "helpdesk",
+      "repository": "https://github.com/frappe/helpdesk",
+      "ref_type": "release_tag",
+      "ref": "v1.31.0",
+      "observed_commit_prefix": "7d7e394",
+      "image_digest": null,
+      "installed": false,
+      "validation": "not_run_runtime_unavailable",
+      "dependency_blockers": ["frappe/telephony exact immutable revision not captured"]
+    },
+    {
+      "name": "lms",
+      "repository": "https://github.com/frappe/lms",
+      "ref_type": "unresolved_branch_candidate",
+      "ref": "version-16",
+      "commit": null,
+      "image_digest": null,
+      "installed": false,
+      "validation": "excluded_until_commit_and_payments_dependency_are_pinned",
+      "dependency_blockers": ["frappe/payments exact immutable revision not captured"]
+    }
+  ],
+  "deployment_sources": {
+    "frappe_docker": {
+      "repository": "https://github.com/frappe/frappe_docker",
+      "ref": null,
+      "status": "pin_release_and_base_image_digest_before_build"
+    },
+    "frappe_helm": {
+      "repository": "https://github.com/frappe/helm",
+      "chart_version": null,
+      "status": "pin_chart_release_before_render_or_deploy"
+    }
+  },
+  "acceptance": {
+    "bench_init": "not_run",
+    "install_framework": "not_run",
+    "install_erpnext_hrms_payroll": "not_run",
+    "install_helpdesk_and_dependencies": "not_run",
+    "install_lms_and_dependencies": "blocked_unpinned",
+    "migrations": "not_run",
+    "smoke_tests": "not_run",
+    "payroll_golden_fixtures": "blocked_issue_134_must_be_tested"
+  }
+}

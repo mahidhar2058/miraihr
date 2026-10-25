@@ -1,0 +1,19 @@
+{
+  "doctype": "Page",
+  "name": "miraihr_home",
+  "page_name": "miraihr_home",
+  "title": "MiraiHR",
+  "module": "MiraiHR Core",
+  "standard": "Yes",
+  "roles": [
+    { "role": "Employee" },
+    { "role": "Employee Self Service" },
+    { "role": "HR User" },
+    { "role": "HR Manager" },
+    { "role": "Leave Approver" },
+    { "role": "Expense Approver" },
+    { "role": "Projects User" },
+    { "role": "Projects Manager" },
+    { "role": "System Manager" }
+  ]
+}

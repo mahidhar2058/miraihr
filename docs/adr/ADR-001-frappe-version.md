@@ -1,10 +1,10 @@
 # ADR-001-frappe-version
 
-**Status:** Proposed; blocked pending P1 compatibility evidence. **Date:** 2026-10-26.
+**Status:** Candidate decision; runtime validation blocked. **Date:** 2026-10-26.
 
 ## Context and decision
 
-No compatible version lock is approved. Candidate v15 merits evaluation due to stable framework/ERPNext/HRMS/Helpdesk paths, but India Payroll v15 evidence is missing. P1 must prove exact app tags, install/migrate, and payroll regression before decision.
+Adopt the v16 release family as the candidate foundation: Frappe 16.53.0, ERPNext 16.52.1, HRMS 16.52.0, and India Payroll 16.0.4. Helpdesk 1.31.0 is a candidate. LMS remains excluded from the image lock until a commit and Payments dependency are pinned. This supersedes the P0 v15 candidate after tagged metadata showed India Payroll 16.0.4 depends on the matching v16 family. It is not an accepted production lock: Python 3.14/Node 24+ and an installation environment are unavailable, and an open ESIC prorating issue requires regression verification.
 
 ## Consequences and acceptance
 

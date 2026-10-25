@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+coverage.xml
+.coverage
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated reports and local overrides
+test-results/
+security-reports/
+values-local.yaml
