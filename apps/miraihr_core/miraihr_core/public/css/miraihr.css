@@ -21,58 +21,7 @@
 	height: 2.7rem;
 }
 
-.miraihr-home__content {
-	max-width: 70rem;
-	margin: 2rem auto;
-	padding: 0 1rem;
-}
-
-.miraihr-home__content h2 {
-	color: var(--miraihr-ink);
-	font-size: 1.5rem;
-	font-weight: 650;
-}
-
-.miraihr-home__grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-	gap: 1rem;
-	margin-top: 1.25rem;
-}
-
-.miraihr-home__card {
-	display: flex;
-	min-height: 5.5rem;
-	align-items: center;
-	padding: 1.25rem;
-	border: 1px solid #d7e6e8;
-	border-radius: 0.75rem;
-	background: #fff;
-	color: var(--miraihr-ink);
-	font-size: 1rem;
-	font-weight: 600;
-	text-decoration: none;
-	transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
-}
-
-.miraihr-home__card:hover {
-	transform: translateY(-1px);
-	border-color: var(--miraihr-teal);
-	background: var(--miraihr-mint);
-	color: var(--miraihr-ink);
-}
-
-.miraihr-home__card:focus-visible,
 .miraihr-login-brand:focus-visible {
 	outline: 3px solid var(--miraihr-focus);
 	outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.miraihr-home__card {
-		transition: none;
-	}
-	.miraihr-home__card:hover {
-		transform: none;
-	}
 }
