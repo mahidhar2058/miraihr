@@ -16,6 +16,10 @@ This specification establishes the kubernetes architecture decisions and P1 impl
 
 Minimum Contabo topology is one failure domain and must be labeled non-HA. Separate web, realtime, scheduler, and worker roles; use limits/quotas, probes, RBAC, network policies, ingress TLS, external secret management, and independent database/file backups. Define HA only after fault tests.
 
+## P1 validation status (2026-10-26)
+
+The official Frappe Helm chart v8.0.73 is pinned as a candidate in `deployment/dependencies.lock.json`. The chart was not rendered or deployed because Helm is absent. Its published appVersion is older than the selected Frappe/ERPNext candidate set, so use an explicitly built and pinned custom app image and verify the chart templates and values before a Contabo deployment. No production deployment occurred.
+
 ## Requirements and decisions
 
 - **MHR-P0-28-01 — P0 specification; P1 implementation:** establish a reviewable design, measurable acceptance evidence, owner, dependencies, and phase mapping for kubernetes architecture.

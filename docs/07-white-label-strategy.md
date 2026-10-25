@@ -10,6 +10,12 @@ This specification establishes the white label strategy decisions and P1 impleme
 
 Use custom app hooks, app assets, workspace configuration, translations, and supported themes. Brand assets may change logos/colors/labels while retaining attribution and required notices. Do not patch upstream source; regression-test every upgrade.
 
+## P1 integration findings (2026-10-26)
+
+Frappe v16 already supports product branding through Website Settings and Navbar Settings for app name/logo, favicon, theme, and navigation presentation. The `app_logo_url`, `brand_html`, and `app_include_css` hooks remain as small extension points for MiraiHR's logo and CSS. Role-specific navigation should be configured with native Workspaces and Sidebar items; workspace visibility is not authorization, so upstream role and DocType permissions must enforce access. Core's custom landing page and navigation API were removed after reference checks confirmed they were self-contained.
+
+No Frappe site has been installed, so login, Desk, email template, favicon, PWA, and workspace appearance are not yet validated. Configure title, logo, favicon, theme, and workspaces in the site after installation, and preserve upstream attribution and license notices.
+
 ## Requirements and decisions
 
 - **MHR-P0-07-01 — P0 specification; P1 implementation:** establish a reviewable design, measurable acceptance evidence, owner, dependencies, and phase mapping for white label strategy.
@@ -22,17 +28,7 @@ Use custom app hooks, app assets, workspace configuration, translations, and sup
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
-
-- Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
-- HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning
-- Helpdesk README compatibility matrix: https://github.com/frappe/helpdesk (main lists Frappe 15 and 16); develop pyproject: https://github.com/frappe/helpdesk/blob/develop/pyproject.toml (Frappe >=16 dev)
-- India Payroll releases: https://github.com/frappe/india-payroll/releases (v16.0.0 observed; v15 compatibility unresolved)
-- LMS repository/license metadata: https://github.com/frappe/lms (AGPL-3.0)
-- Lending develop constraints: https://github.com/frappe/lending/blob/develop/pyproject.toml (Frappe and ERPNext >=17 dev)
-- Docker and Helm: https://github.com/frappe/frappe_docker and https://github.com/frappe/helm
-- HR mobile PWA guide: https://docs.frappe.io/hr/mobile-app-installation
-- Press constraints: https://github.com/frappe/press/blob/develop/pyproject.toml (Frappe >=15,<17)
+The source candidate set and exact constraints are recorded in [version compatibility](06-version-compatibility.md) and [dependency evidence](research/dependency-evidence.md). Branding support is confirmed in Frappe v16's `app_logo_url`, `brand_html`, and `app_include_css` hooks and native Website/Navbar settings. The official HR mobile guide establishes an installable PWA, not native app-store packaging: https://docs.frappe.io/hr/mobile-app-installation.
 
 ## Acceptance criteria
 

@@ -10,6 +10,10 @@ This specification establishes the docker architecture decisions and P1 implemen
 
 Build images from pinned official Frappe Docker patterns with exact app SHAs, lock files, non-root runtime where supported, vulnerability scans, SBOM, provenance, and immutable registry tags/digests. Separate development conveniences from production image configuration.
 
+## P1 validation status (2026-10-26)
+
+Candidate source pins and the official Frappe Docker v4.0.1 commit are recorded in `deployment/dependencies.lock.json`. The remote `frappe/erpnext:v16` OCI manifest was inspected and its amd64 digest recorded as a reference only; it does not include or validate MiraiHR's full app set. No image layers were pulled, no app image was built, and no container was started. Docker Engine was reachable under authorized invocation, but host memory headroom was about 3.4 GiB. Build and runtime validation remain blocked until sufficient test capacity and Python 3.14/Node 24 build dependencies are available.
+
 ## Requirements and decisions
 
 - **MHR-P0-27-01 — P0 specification; P1 implementation:** establish a reviewable design, measurable acceptance evidence, owner, dependencies, and phase mapping for docker architecture.

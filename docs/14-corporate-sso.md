@@ -10,6 +10,10 @@ This specification establishes the corporate sso decisions and P1 implementation
 
 Configure a separate Entra ID or Google Workspace OIDC client per tenant. Validate exact issuer, audience, signing keys, state, nonce, expiry, and pre-registered redirect URI; allow only approved email domains as an additional policy check, not tenant selection. Link on immutable `(issuer, subject)` after verified domain/HR employee mapping; do not silently merge accounts by email. JIT may create a pending identity but must not grant HR roles. Deactivation and role changes require explicit policy; SCIM is deferred. Keep local MFA-protected break-glass admin accounts with alerting and access review. Store client secrets in external secret storage and redact auth logs.
 
+## P1 upstream security review (2026-10-26)
+
+Frappe v16 exposes native Social Login Key configuration for Google, Office 365, Keycloak, and custom OAuth providers. Source review of the built-in Office 365 flow found ID-token decoding with signature verification disabled and no tenant/issuer binding in the inspected login path. Therefore native provider availability alone does not meet MiraiHR's tenant-bound corporate SSO requirements. Entra/Google SSO is **BLOCKED pending a vetted secure integration and configured identity-provider test**. Do not enable JIT signup or link accounts by email alone. Local Frappe authentication remains a supported fallback during evaluation.
+
 ## Area-specific design
 
 Configure tenant-specific Entra ID and Google OIDC clients; validate signature, issuer, audience, state, nonce, time, and redirect. Link by verified provider subject, avoid email-only account merges, map roles conservatively, support deactivation, and retain audited local break-glass.
@@ -26,17 +30,7 @@ Configure tenant-specific Entra ID and Google OIDC clients; validate signature, 
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
-
-- Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
-- HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning
-- Helpdesk README compatibility matrix: https://github.com/frappe/helpdesk (main lists Frappe 15 and 16); develop pyproject: https://github.com/frappe/helpdesk/blob/develop/pyproject.toml (Frappe >=16 dev)
-- India Payroll releases: https://github.com/frappe/india-payroll/releases (v16.0.0 observed; v15 compatibility unresolved)
-- LMS repository/license metadata: https://github.com/frappe/lms (AGPL-3.0)
-- Lending develop constraints: https://github.com/frappe/lending/blob/develop/pyproject.toml (Frappe and ERPNext >=17 dev)
-- Docker and Helm: https://github.com/frappe/frappe_docker and https://github.com/frappe/helm
-- HR mobile PWA guide: https://docs.frappe.io/hr/mobile-app-installation
-- Press constraints: https://github.com/frappe/press/blob/develop/pyproject.toml (Frappe >=15,<17)
+P1 source-review notes are recorded above. Frappe provides provider configuration, but the inspected v16 Office 365 login implementation did not demonstrate signature or tenant/issuer verification required by this design. Source: https://github.com/frappe/frappe/blob/version-16/frappe/utils/oauth.py. SSO remains unverified until an approved integration is configured and tested with a real provider.
 
 ## Acceptance criteria
 

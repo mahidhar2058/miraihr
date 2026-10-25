@@ -10,40 +10,27 @@ This specification establishes the version compatibility decisions and P1 implem
 
 | App | Candidate release | Declared constraint / evidence | Decision |
 |---|---|---|---|
-| Frappe | `v16.53.0` (`e8d41dd`) | v16 release; Python `>=3.14,<3.15`; Node 24+ in v16 migration guide | Pin candidate |
-| ERPNext | `v16.52.1` (`ade850b`) | v16 release; same major as Frappe | Pin candidate |
-| HRMS | `v16.52.0` (`5c72c06`) | Frappe and ERPNext `>=16.50,<17` | Pin candidate |
-| India Payroll | `v16.0.4` (`2f033e4`) | Tagged metadata requires Python >=3.14 and Frappe/ERPNext/HRMS `>=16,<17` | Pin candidate; payroll blocked on regression evidence |
-| Helpdesk | `v1.31.0` (`7d7e394`) | Tagged metadata requires Frappe `>=15.123.1,<17` and Telephony `>=0.0.1,<1` | Pin candidate; Telephony transitive app still needs exact pin |
-| Learning | `version-16` branch | Raw branch metadata requires Frappe `>=16,<17` and Payments `>=0.0.1,<1`; no exact commit captured | Do not include in image lock until commit and Payments are pinned |
+| Frappe | `v16.53.0` (`e8d41dd0061a32ee781caefe5d0b0d2bb7c15362`) | Python `>=3.14,<3.15`; Node `>=24` | Immutable candidate; install not run |
+| ERPNext | `v16.52.1` (`ade850bbd6a7412e9994a9637d2c5c713771632a`) | Frappe v16 | Immutable candidate; install not run |
+| HRMS | `v16.52.0` (`5c72c067c0a3bcc969a49c708b7bec545a046fe9`) | Frappe and ERPNext `>=16.50,<17` | Immutable candidate; install not run |
+| India Payroll | `v16.0.4` (`2f033e4a37931ec6859d81b84b60666511665bba`) | Python >=3.14 and Frappe/ERPNext/HRMS `>=16,<17` | Immutable candidate; regression issue #134 is an open gate |
+| Telephony | `develop` (`9447577500a25d242088398157b72c654fa34b20`) | Helpdesk dependency `>=0.0.1,<1`; no release tags | Immutable commit candidate; validate with Helpdesk |
+| Helpdesk | `v1.31.0` (`7d7e394e7571fbdbdda04a65a279566b0ac9ce7f`) | Frappe `>=15.123.1,<17`; Telephony `>=0.0.1,<1` | Immutable candidate; install not run |
+| Payments | `version-16` (`cca07d9f9392e2ea0e521c5975151db9e4b6c321`) | Frappe `>=16,<17`; Python >=3.14 | LMS dependency; no release tag, validate with LMS |
+| Learning | `v2.64.0` (`7c46bb8f4976222b3f6aa84368551c424edaa194`) | Frappe `>=15.121,<17`; Payments `>=0.0.1,<1` | Immutable candidate; includes Payments dependency; install not run |
 | Lending | Excluded from P1 installed set | Not required for initial release; exact same-site validation is deferred | Evaluate separately if scope changes |
 
-This is a **machine-readable candidate lock**, not accepted compatibility. Exact release tags and observed short commit prefixes are in [dependencies.lock.json](../deployment/dependencies.lock.json). Lock acceptance requires full commit resolution, image digests, Bench installation, module install, migrations, and functional smoke tests. The official branch metadata supports a plausible v16 combination, but does not prove the selected releases work together.
+This is a **machine-readable candidate lock**, not accepted compatibility. Full source SHAs, runtime constraints, license findings, dependency order, and the inspected ERPNext image digest are in [dependencies.lock.json](../deployment/dependencies.lock.json). Lock acceptance still requires building the combined pinned image, installing all apps, migrations, and functional smoke tests. Declared version ranges do not prove that the selected releases work together.
 
 ### Runtime and blocking validation
 
-Frappe v16 requires Python 3.14 and Node.js 24+ per the official migration guide. This workstation has Python 3.12.1 and Node 20.11.0; Bench and Helm are absent. Docker is installed but the engine named pipe denies access; WSL also returns access denied. Therefore Bench initialization, installation, migration, container build, Helm rendering, and application smoke tests are BLOCKED here. Do not label the stack compatible until those gates run elsewhere.
+Frappe v16 requires Python 3.14 and Node.js 24+ per the official migration guide. This Windows host has Python 3.12.1 and Node 20.11.0; Bench and Helm are absent. Docker Engine 29.9.2 was accessible with authorized elevated invocation; its Linux engine has 8 CPUs and 7.6 GiB memory allocation. The host had about 3.4 GiB available memory and 75.2 GiB free disk. No images were pulled, containers started, or builds attempted. A remote `frappe/erpnext:v16` OCI manifest was inspected, including the amd64 digest; this does not verify the requested multi-app image. Bench initialization, application installation, migrations, Helm rendering, and app workflows remain NOT TESTED/BLOCKED. No Docker data was removed.
 
 India Payroll issue [#134](https://github.com/frappe/india-payroll/issues/134), opened 2026-10-06, describes employer ESIC being overwritten with a full-month amount for prorated pay on a v16 stack. Until a regression case passes on the selected release, Indian payroll must not be represented as commercially ready.
 
-## Provisional matrix (not an install lock)
+## Previous P0 baseline
 
-| Component | Candidate | Dependencies / install | Evidence and decision |
-|---|---|---|---|
-| Frappe | version-15 stable stream | Framework first; MariaDB/Redis and Bench | Stable v15 tags observed; exact pinned patch not selected |
-| ERPNext | version-15 | Same major as Frappe | Stable v15 release stream; candidate |
-| HRMS | version-15 | Frappe/ERPNext aligned | Official HRMS branch policy requires alignment; candidate |
-| India Payroll | v16.0.0 release observed | HRMS integration; install after HRMS | v15 support unverified; BLOCKS final selection |
-| Helpdesk | main has documented v15/v16 matrix | Frappe; exact tag required | Candidate; develop metadata is v16-dev and must not be used for v15 |
-| LMS | exact release not chosen | Bench app; dependency range not recorded | UNVERIFIED; integration may be separate site/API |
-| Lending | develop requires >=17-dev | ERPNext required | Exclude from MVP; separate API/partner evaluation later |
-| Docker / Helm | official repos | Pin image digest and chart release | Deployment tools, not application compatibility proof |
-
-**Decision:** no all-app same-site supported combination has been demonstrated. P1 must run a frozen, reproducible install/migrate/upgrade and cross-app acceptance suite. If India Payroll lacks a supported v15 release, evaluate a supported v16 stack as a whole; do not run payroll on a separate site without a documented identity, data, and reporting contract.
-
-## Area-specific design
-
-Provisional candidate is aligned Frappe/ERPNext/HRMS v15 plus compatible Helpdesk. India Payroll v16 release evidence prevents approving this matrix. LMS and exact tagged dependencies are unverified. P1 must freeze tag SHAs, runtime versions, install order, and migration evidence.
+The earlier aligned v15 design was superseded because India Payroll v16 release metadata explicitly targets Frappe, ERPNext, and HRMS v16. Do not treat the old v15 matrix as current. The selected v16 refs above are candidates only until the full same-site install and workflow suite passes. Lending remains excluded because its current development metadata targets Frappe/ERPNext 17.
 
 ## Requirements and decisions
 
