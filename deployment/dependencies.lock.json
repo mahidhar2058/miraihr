@@ -7,8 +7,8 @@
   "runtime": {
     "python": ">=3.14,<3.15",
     "nodejs": ">=24,<25",
-    "database": "MariaDB; choose and pin a Frappe Docker supported image after install validation",
-    "redis": "Choose and pin a Frappe Docker supported image after install validation"
+    "database": "mariadb:11.8.3 for hosted CI only; production image remains unselected",
+    "redis": "redis:7.4.2-alpine for hosted CI only; production image remains unselected"
   },
   "installation_order": [
     "frappe",
@@ -67,7 +67,7 @@
       "requires_frappe": ">=16,<17",
       "requires_apps": {"erpnext": ">=16,<17", "hrms": ">=16,<17"},
       "runtime": {"python": ">=3.14,<3.15", "nodejs": ">=24,<25"},
-      "license": "GPL-3.0 (upstream README; exact tag file still to verify)",
+      "license": "GPL-3.0 (verified license.txt at pinned tag)",
       "installed": false,
       "validation": "blocked_payroll_regression_and_install",
       "known_issue": "https://github.com/frappe/india-payroll/issues/134"
@@ -75,12 +75,14 @@
     {
       "name": "telephony",
       "repository": "https://github.com/frappe/telephony",
-      "ref_type": "branch_commit",
-      "ref": "develop",
+      "ref_type": "immutable_commit",
+      "ref": "9447577500a25d242088398157b72c654fa34b20",
       "commit": "9447577500a25d242088398157b72c654fa34b20",
+      "bootstrap_ref": "develop",
+      "source_note": "No release tags; this exact commit was resolved from develop on checked_at.",
       "requires_frappe": ">=14.101,<=17.0.0-dev",
       "runtime": {"python": ">=3.10"},
-      "license": "AGPL-3.0 (repository metadata; verify at pinned commit)",
+      "license": "AGPL-3.0 (verified license.txt at pinned commit)",
       "dependency_for": ["helpdesk"],
       "installed": false,
       "validation": "candidate_no_release_tag_install_not_run"
@@ -94,19 +96,21 @@
       "requires_frappe": ">=15.123.1,<17",
       "requires_apps": {"telephony": ">=0.0.1,<1"},
       "runtime": {"python": ">=3.14,<3.15", "nodejs": ">=24,<25"},
-      "license": "AGPL-3.0 (repository metadata; verify at pinned tag)",
+      "license": "AGPL-3.0 (verified LICENSE at pinned tag)",
       "installed": false,
       "validation": "blocked_telephony_integration_and_install"
     },
     {
       "name": "payments",
       "repository": "https://github.com/frappe/payments",
-      "ref_type": "branch_commit",
-      "ref": "version-16",
+      "ref_type": "immutable_commit",
+      "ref": "cca07d9f9392e2ea0e521c5975151db9e4b6c321",
       "commit": "cca07d9f9392e2ea0e521c5975151db9e4b6c321",
+      "bootstrap_ref": "version-16",
+      "source_note": "No release tags; this exact commit was resolved from version-16 on checked_at.",
       "requires_frappe": ">=16,<17",
       "runtime": {"python": ">=3.14"},
-      "license": "MIT (verify at pinned commit)",
+      "license": "MIT (verified LICENSE at pinned commit)",
       "dependency_for": ["lms"],
       "installed": false,
       "validation": "candidate_no_release_tag_install_not_run"
@@ -129,7 +133,7 @@
       "repository": "local",
       "ref_type": "repository_commit",
       "ref": "main",
-      "commit": "a50886fdd1dc14a4998c4131a3cd1fc90ff00be9",
+      "commit": "94805a5c2af5a6da4f20033a78925b38a3e5382d",
       "requires_frappe": ">=16.50,<17",
       "runtime": {"python": ">=3.14,<3.15"},
       "license": "UNLICENSED (no license granted; distribution awaits owner/legal decision)",

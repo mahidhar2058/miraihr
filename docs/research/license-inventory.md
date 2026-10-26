@@ -4,15 +4,15 @@
 
 | Component | Preliminary finding | Required follow-up |
 |---|---|---|
-| Frappe | MIT at v16.52.0; selected v16.53.0 license still to verify | Preserve notice; inspect selected tag |
-| ERPNext | GPL-3.0 at v16.52.0; selected v16.52.1 tag still to verify | Legal review of use, modifications, and distribution |
-| HRMS | GPL-3.0 at v16.52.0 | Verify selected tag, preserve notices, review obligations |
-| India Payroll | GPL-3.0 per upstream README; exact v16.0.4 license file not confirmed | Verify exact tag; payroll and copyleft review |
-| Helpdesk | AGPL-3.0 repository metadata; verify v1.31.0 tag | Inspect exact tag and dependencies; review hosted modifications |
-| Telephony | AGPL-3.0 repository metadata; no release tags | Verify pinned commit and review whether required features activate this app |
-| LMS | AGPL-3.0-or-later at v2.64.0 | Review obligations; LMS pulls in Payments |
-| Payments | License at pinned commit not yet confirmed | Verify before including LMS in commercial image |
-| Frappe Docker / Helm | MIT | Preserve required notices |
+| Frappe v16.53.0 | MIT; `LICENSE` verified in pinned checkout | Preserve notice; inspect bundled dependencies |
+| ERPNext v16.52.1 | GPL-3.0; `license.txt` verified in pinned checkout | Legal review of use, modifications, and distribution |
+| HRMS v16.52.0 | GPL-3.0; `license.txt` verified in pinned checkout | Preserve notices; review obligations |
+| India Payroll v16.0.4 | GPL-3.0; `license.txt` verified in pinned checkout | Payroll and copyleft review |
+| Helpdesk v1.31.0 | AGPL-3.0; `LICENSE` verified in pinned checkout | Review hosted modifications and dependencies |
+| Telephony pinned commit | AGPL-3.0; `license.txt` verified in pinned checkout | Required by Helpdesk metadata; assess obligations |
+| LMS v2.64.0 | AGPL-3.0; license verified in pinned checkout | Review obligations; LMS pulls in Payments |
+| Payments pinned commit | MIT; `LICENSE` verified in pinned checkout | Preserve notice |
+| Frappe Docker v4.0.1 / Helm 8.0.73 | MIT; license files verified in pinned checkouts | Preserve required notices |
 | MiraiHR Core | `UNLICENSED`; no license has been granted | Owner/legal decision required before distribution |
 
-No automated license scan or complete transitive SBOM has run. Do not distribute the combined image until exact-tag notices and transitive dependencies are reviewed by the owner and counsel.
+No automated license scan or complete transitive SBOM has run. Do not distribute the combined image until transitive dependencies are scanned and obligations are reviewed by the owner and counsel.

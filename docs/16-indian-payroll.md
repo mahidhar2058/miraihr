@@ -10,7 +10,7 @@ This specification establishes the indian payroll decisions and P1 implementatio
 
 Frappe HRMS provides payroll workflows; India Payroll release notes for v16 describe EPF, ESI, state professional tax, LWF, income-tax regimes, exemptions, marginal relief, and statutory registers. This is not proof that the rules are current for a given payroll period or that the app works with the candidate Frappe major. Before customer use, a qualified Indian payroll specialist must validate effective-date rules, state configuration, rounding, eligibility thresholds, sample salary slips, statutory registers, and amendment behavior against current authoritative rules. Never treat generated calculations as legal or tax advice. Payroll data stays within tenant site and private encrypted storage.
 
-The selected candidate is India Payroll `v16.0.4`, whose tagged metadata declares Frappe/ERPNext/HRMS v16. However, upstream issue [#134](https://github.com/frappe/india-payroll/issues/134) reports an employer ESIC overstatement for partial-month pay on a v16 environment. P1 must add the reported example to payroll regression fixtures and verify the candidate tag's behavior before any payroll readiness claim. No upstream code workaround is introduced here.
+The selected candidate is India Payroll `v16.0.4`, whose tagged metadata declares Frappe/ERPNext/HRMS v16. However, upstream issue [#134](https://github.com/frappe/india-payroll/issues/134) reports an employer ESIC overstatement for partial-month pay on a v16 environment. A synthetic integration regression is now in `apps/miraihr_core/miraihr_core/tests/test_india_payroll_issue_134.py`; it asserts employer ESI is calculated from paid wages after recalculation. It has not run yet and makes no payroll readiness claim. No upstream code workaround is introduced here.
 
 ## Area-specific design
 
@@ -28,17 +28,7 @@ Reuse HRMS payroll and evaluate India Payroll for statutory deductions and repor
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
-
-- Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
-- HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning
-- Helpdesk README compatibility matrix: https://github.com/frappe/helpdesk (main lists Frappe 15 and 16); develop pyproject: https://github.com/frappe/helpdesk/blob/develop/pyproject.toml (Frappe >=16 dev)
-- India Payroll releases: https://github.com/frappe/india-payroll/releases (v16.0.0 observed; v15 compatibility unresolved)
-- LMS repository/license metadata: https://github.com/frappe/lms (AGPL-3.0)
-- Lending develop constraints: https://github.com/frappe/lending/blob/develop/pyproject.toml (Frappe and ERPNext >=17 dev)
-- Docker and Helm: https://github.com/frappe/frappe_docker and https://github.com/frappe/helm
-- HR mobile PWA guide: https://docs.frappe.io/hr/mobile-app-installation
-- Press constraints: https://github.com/frappe/press/blob/develop/pyproject.toml (Frappe >=15,<17)
+The candidate revisions and checked-out upstream metadata are recorded in [dependency evidence](research/dependency-evidence.md) and the [repository inventory](research/upstream-repository-inventory.md). Version ranges allow the v16 candidate combination but do not demonstrate runtime compatibility. Local Docker/WSL testing is prohibited for this phase; GitHub-hosted Actions is the pending installation and regression environment.
 
 ## Acceptance criteria
 

@@ -12,7 +12,7 @@ Build images from pinned official Frappe Docker patterns with exact app SHAs, lo
 
 ## P1 validation status (2026-10-26)
 
-Candidate source pins and the official Frappe Docker v4.0.1 commit are recorded in `deployment/dependencies.lock.json`. The remote `frappe/erpnext:v16` OCI manifest was inspected and its amd64 digest recorded as a reference only; it does not include or validate MiraiHR's full app set. No image layers were pulled, no app image was built, and no container was started. Docker Engine was reachable under authorized invocation, but host memory headroom was about 3.4 GiB. Build and runtime validation remain blocked until sufficient test capacity and Python 3.14/Node 24 build dependencies are available.
+Candidate source pins and the official Frappe Docker v4.0.1 commit are recorded in `deployment/dependencies.lock.json`. Local Docker, WSL, and Kubernetes execution are prohibited. The GitHub Actions workflow uses hosted Ubuntu with MariaDB and Redis services for a disposable Bench site; it does not yet build a custom all-app OCI image. The recorded `frappe/erpnext:v16` digest is reference evidence only, not a validated MiraiHR image. Hosted installation and runtime validation are pending an Actions run.
 
 ## Requirements and decisions
 

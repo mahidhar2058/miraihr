@@ -1,19 +1,21 @@
 # Upstream repository inventory
 
-**Checked:** 2026-10-26. Evidence below is repository metadata or official documentation; availability of tags does not prove runtime coexistence. A v16 candidate stack supersedes the initial P0 v15 assumption, but remains unvalidated.
+**Checked:** 2026-10-26. The requested repositories have shallow local checkouts under ignored `upstream/` at the pinned commits below. Source presence and SHA were verified locally. This does not prove runtime coexistence; installation and migration remain pending GitHub Actions.
 
-| Project | Canonical source | Current finding | Compatibility / install | Status |
+| Project | Canonical source | Pinned local checkout | Compatibility / install | Status |
 |---|---|---|---|---|
-| Frappe | https://github.com/frappe/frappe | Framework; candidate `v16.53.0`, release prefix `e8d41dd` | Bench app; Python 3.14, Node 24+ | Candidate; runtime unavailable |
-| ERPNext | https://github.com/frappe/erpnext | ERP/accounting foundation; candidate `v16.52.1`, prefix `ade850b` | Align with Frappe 16 | Candidate; runtime unavailable |
-| HRMS | https://github.com/frappe/hrms | Employee lifecycle, payroll, leave, attendance; candidate `v16.52.0`, prefix `5c72c06` | Metadata requires Frappe/ERPNext >=16.50,<17 | Candidate; runtime unavailable |
-| India Payroll | https://github.com/frappe/india-payroll | India statutory payroll; candidate `v16.0.4`, prefix `2f033e4` | Tagged metadata requires Frappe/ERPNext/HRMS v16 | Candidate; issue #134 payroll regression blocker |
-| Helpdesk | https://github.com/frappe/helpdesk | Customer service app; candidate `v1.31.0`, prefix `7d7e394` | Tagged metadata allows Frappe 15.123.1–16.x; requires Telephony | Candidate; Telephony not pinned |
-| LMS | https://github.com/frappe/lms | Learning platform; AGPL-3.0 repository metadata | version-16 branch allows Frappe 16; requires Payments; exact commit not pinned | Blocked from locked image |
-| Gantt | https://github.com/frappe/gantt | JS Gantt library used by ERPNext | Library integration; MIT metadata | VERIFIED function/license metadata |
-| Lending | https://github.com/frappe/lending | Lending domain app | develop pyproject requires Frappe/ERPNext >=17 dev | Excluded MVP; future separate evaluation |
-| frappe_docker | https://github.com/frappe/frappe_docker | Official container/deployment recipes; MIT | Build custom app image; pin image digest | VERIFIED repository |
-| helm | https://github.com/frappe/helm | Chart with web, scheduler, Socket.IO, workers and provisioning jobs | Chart release/app versions must be pinned | VERIFIED chart capability |
-| Press | https://github.com/frappe/press | Frappe Cloud operator platform | develop metadata Frappe >=15,<17; not assumed compatible with target lock | EVALUATE later |
+| Frappe | https://github.com/frappe/frappe | `upstream/frappe` — v16.53.0, `e8d41dd0061a32ee781caefe5d0b0d2bb7c15362` | Python >=3.14,<3.15; Node >=24 | Candidate; runtime install pending |
+| ERPNext | https://github.com/frappe/erpnext | `upstream/erpnext` — v16.52.1, `ade850bbd6a7412e9994a9637d2c5c713771632a` | Frappe >=16.50,<17 | Candidate; runtime install pending |
+| HRMS | https://github.com/frappe/hrms | `upstream/hrms` — v16.52.0, `5c72c067c0a3bcc969a49c708b7bec545a046fe9` | Frappe/ERPNext >=16.50,<17 | Candidate; runtime install pending |
+| India Payroll | https://github.com/frappe/india-payroll | `upstream/india-payroll` — v16.0.4, `2f033e4a37931ec6859d81b84b60666511665bba` | Frappe/ERPNext/HRMS >=16,<17 | Candidate; issue #134 regression gate |
+| Helpdesk | https://github.com/frappe/helpdesk | `upstream/helpdesk` — v1.31.0, `7d7e394e7571fbdbdda04a65a279566b0ac9ce7f` | Frappe >=15.123.1,<17; requires Telephony | Candidate; runtime install pending |
+| LMS | https://github.com/frappe/lms | `upstream/lms` — v2.64.0, `7c46bb8f4976222b3f6aa84368551c424edaa194` | Frappe >=15.121,<17; requires Payments | Candidate; runtime install pending |
+| Telephony | https://github.com/frappe/telephony | `upstream/telephony` — `9447577500a25d242088398157b72c654fa34b20` | No release tags; exact commit required by Helpdesk | Candidate; validate with Helpdesk |
+| Payments | https://github.com/frappe/payments | `upstream/payments` — `cca07d9f9392e2ea0e521c5975151db9e4b6c321` | No release tags; exact commit required by LMS | Candidate; validate with LMS |
+| frappe_docker | https://github.com/frappe/frappe_docker | `upstream/frappe_docker` — v4.0.1, `2b26e9ab8d751e5ea33bb7b930aea3550bb81ded` | Official Docker build patterns; no MiraiHR image built yet | Pinned source checkout |
+| Helm | https://github.com/frappe/helm | `upstream/helm` — chart v8.0.73, `e930266e11ebbe37348ab9079fb0e75ab7d253ff` | Chart appVersion v16.32.1 lags candidate app versions | Pinned source checkout; chart not rendered |
+| Gantt | https://github.com/frappe/gantt | Not cloned; optional source inspection | ERPNext upstream integration; no custom replacement planned | Deferred |
+| Lending | https://github.com/frappe/lending | Not cloned; optional source inspection | Develop metadata requires Frappe/ERPNext >=17 | Excluded from this phase |
+| Press | https://github.com/frappe/press | Not cloned; optional source inspection | Operator platform; independently validate if needed | Deferred |
 
-**Unavailable from this inspection:** full commit SHAs and image digests, exact immutable LMS/Payments/Telephony pins, runtime install/migrate/functional test evidence, API guarantees between independently deployed sites, transitive licenses, and operational support SLAs. These remain UNVERIFIED.
+The ten checked-out repositories are ignored by MiraiHR Git and must not be committed. CI installation/migration/workflow evidence, payroll regression results, transitive SBOM, separate-site API guarantees, and operational support SLAs remain unverified.

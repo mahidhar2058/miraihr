@@ -18,7 +18,7 @@ Minimum Contabo topology is one failure domain and must be labeled non-HA. Separ
 
 ## P1 validation status (2026-10-26)
 
-The official Frappe Helm chart v8.0.73 is pinned as a candidate in `deployment/dependencies.lock.json`. The chart was not rendered or deployed because Helm is absent. Its published appVersion is older than the selected Frappe/ERPNext candidate set, so use an explicitly built and pinned custom app image and verify the chart templates and values before a Contabo deployment. No production deployment occurred.
+The official Frappe Helm chart v8.0.73 is pinned as a candidate in `deployment/dependencies.lock.json`. Local Kubernetes/Helm execution is prohibited. The chart was not rendered or deployed. Its published appVersion is older than the selected Frappe/ERPNext candidate set, so chart template/value validation and a compatible pinned application image are still required before deployment. No production deployment occurred.
 
 ## Requirements and decisions
 

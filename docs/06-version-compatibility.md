@@ -24,7 +24,7 @@ This is a **machine-readable candidate lock**, not accepted compatibility. Full 
 
 ### Runtime and blocking validation
 
-Frappe v16 requires Python 3.14 and Node.js 24+ per the official migration guide. This Windows host has Python 3.12.1 and Node 20.11.0; Bench and Helm are absent. Docker Engine 29.9.2 was accessible with authorized elevated invocation; its Linux engine has 8 CPUs and 7.6 GiB memory allocation. The host had about 3.4 GiB available memory and 75.2 GiB free disk. No images were pulled, containers started, or builds attempted. A remote `frappe/erpnext:v16` OCI manifest was inspected, including the amd64 digest; this does not verify the requested multi-app image. Bench initialization, application installation, migrations, Helm rendering, and app workflows remain NOT TESTED/BLOCKED. No Docker data was removed.
+For this phase, local Docker, WSL, Kubernetes, Bench/site installations, and service-backed application testing are prohibited. The GitHub Actions workflow uses hosted Ubuntu, pinned Python/Node versions, and MariaDB/Redis services. Source pins and declared constraints were inspected locally; same-site installation, migrations, smoke tests, and the payroll regression remain PENDING until the workflow runs. The recorded upstream image digest is a reference only and does not represent a MiraiHR multi-app image. No full custom OCI image is built by the current workflow.
 
 India Payroll issue [#134](https://github.com/frappe/india-payroll/issues/134), opened 2026-10-06, describes employer ESIC being overwritten with a full-month amount for prorated pay on a v16 stack. Until a regression case passes on the selected release, Indian payroll must not be represented as commercially ready.
 
@@ -44,7 +44,7 @@ The earlier aligned v15 design was superseded because India Payroll v16 release 
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
+Checked 2026-10-26. The selected candidate refs, exact SHAs, runtime constraints, and license files were inspected at the pinned checkouts and recorded in the lock and research inventory. Declared ranges are mutually plausible but do not establish a working installation. The hosted workflow is configured but has not run. Commercial obligations still require legal review.
 
 - Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
 - HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning
