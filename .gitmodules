@@ -1,0 +1,30 @@
+[submodule "upstream/frappe"]
+	path = upstream/frappe
+	url = https://github.com/frappe/frappe.git
+[submodule "upstream/erpnext"]
+	path = upstream/erpnext
+	url = https://github.com/frappe/erpnext.git
+[submodule "upstream/hrms"]
+	path = upstream/hrms
+	url = https://github.com/frappe/hrms.git
+[submodule "upstream/india-payroll"]
+	path = upstream/india-payroll
+	url = https://github.com/frappe/india-payroll.git
+[submodule "upstream/telephony"]
+	path = upstream/telephony
+	url = https://github.com/frappe/telephony.git
+[submodule "upstream/helpdesk"]
+	path = upstream/helpdesk
+	url = https://github.com/frappe/helpdesk.git
+[submodule "upstream/payments"]
+	path = upstream/payments
+	url = https://github.com/frappe/payments.git
+[submodule "upstream/lms"]
+	path = upstream/lms
+	url = https://github.com/frappe/lms.git
+[submodule "upstream/frappe_docker"]
+	path = upstream/frappe_docker
+	url = https://github.com/frappe/frappe_docker.git
+[submodule "upstream/helm"]
+	path = upstream/helm
+	url = https://github.com/frappe/helm.git

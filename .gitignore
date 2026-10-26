@@ -20,9 +20,8 @@ npm-debug.log*
 *.key
 
 # Generated reports and local overrides
+artifacts/
 test-results/
 security-reports/
 values-local.yaml
 
-# Pinned upstream source checkouts (never commit vendor trees)
-/upstream/
