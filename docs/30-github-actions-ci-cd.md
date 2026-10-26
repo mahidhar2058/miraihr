@@ -14,13 +14,15 @@ Workflow `.github/workflows/ci-p1.yml` runs on pushes to `main`, pull requests t
 
 | Job | Work and commands | Artifacts | Timeout |
 |---|---|---|---|
-| `source-validation` | `validate_sources.py` fetches immutable SHAs and checks runtime/dependency/license metadata; validates branding hook/assets | `upstream-source-validation` | 30 min |
+| `source-validation` | Recursive checkout; `verify_upstream_sources.py` validates initialized submodules, gitlinks, canonical remotes, source files, clean checkouts, and license evidence before metadata checks | `upstream-source-verification`, `upstream-source-validation` | 30 min |
 | `frappe-integration` | Hosted MariaDB 11.8.3 + Redis 7.4.2; Bench init, exact app checkout, requirements/assets, site creation, installs, migrate, `bench version`, site/workspace/branding HTTP checks, each app's `run-tests --app`, focused Issue #134 regression | `frappe-integration-evidence` (logs, results, license inventory, pip audit CycloneDX SBOM) | 300 min |
-| `security` | Gitleaks history scan; Trivy HIGH/CRITICAL scan of the pinned upstream `frappe/erpnext` image digest | `upstream-base-image-security-scan` | 45 min |
+| `security` | Gitleaks history scan; pinned upstream `frappe/erpnext` image scan with JSON and SARIF reports followed by an explicit HIGH/CRITICAL policy gate | `upstream-base-image-security-scan` | 45 min |
 
 These checks are configured, not passed. Runtime installation may expose incompatibilities; failures preserve logs and fail the job. Trivy currently scans the upstream base image only, not a MiraiHR all-app image. Artifact retention is 30 days. Estimated duration is bounded by the 300-minute integration timeout; no measured run time exists yet. Pull-request jobs receive no deployment credentials. The site/admin password is generated per run and is not a repository secret.
 
-The source gate validates license text at immutable upstream SHAs, supports common root and `LICENSES/`/`legal/` filenames including `LICENSE.md`, records per-repository evidence, and writes `artifacts/upstream-source-validation.json` even when validation fails. Missing, empty, ambiguous, unrecognized, or lock-mismatched license text fails the gate. The first hosted run failed because the older filename allowlist omitted Helm's root `LICENSE.md`; the pinned Helm SHA was not changed. Synthetic regression tests now cover supported filenames and failure reporting.
+The recursive source gate checks each lock SHA against both the Git index gitlink and initialized checkout, confirms canonical `origin`, meaningful source and license files, and rejects dirty, sparse, or nested repository states. It writes `artifacts/upstream-source-verification.json`. The metadata gate separately validates license text at immutable source SHAs, supports common root and `LICENSES/`/`legal/` filenames including `LICENSE.md`, and writes `artifacts/upstream-source-validation.json` even when validation fails. Missing, empty, ambiguous, unrecognized, or lock-mismatched license text fails validation. The first hosted run failed because the older filename allowlist omitted Helm's root `LICENSE.md`; the pinned Helm SHA was not changed. Synthetic regression tests cover supported filenames and failure reporting.
+
+GitHub Actions checks out with `submodules: recursive` before source verification. A fresh local checkout can use `git clone --recurse-submodules https://github.com/mahidhar2058/miraihr.git`; an existing checkout can use `git submodule update --init --recursive`. The ten upstream repositories remain pinned references, not vendored files in MiraiHR history.
 
 ## Requirements and decisions
 

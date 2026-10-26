@@ -1,8 +1,8 @@
 # Upstream repository inventory
 
-**Checked:** 2026-10-26. The requested repositories have shallow local checkouts under ignored `upstream/` at the pinned commits below. Source presence and SHA were verified locally. This does not prove runtime coexistence; installation and migration remain pending GitHub Actions.
+**Checked:** 2026-10-26. The ten selected upstream repositories are registered as Git submodules under `upstream/`; the MiraiHR tree records each exact locked commit as a gitlink. A submodule is a pinned reference, not vendored upstream history. The exact source is reproduced by a recursive clone or `git submodule update --init --recursive`. Local source, remote, clean-tree, license-file, and pinned-SHA evidence is produced by `python scripts/verify_upstream_sources.py`. This does not prove runtime coexistence; installation and migration remain pending GitHub Actions.
 
-| Project | Canonical source | Pinned local checkout | Compatibility / install | Status |
+| Project | Canonical source | Pinned submodule checkout | Compatibility / install | Status |
 |---|---|---|---|---|
 | Frappe | https://github.com/frappe/frappe | `upstream/frappe` — v16.53.0, `e8d41dd0061a32ee781caefe5d0b0d2bb7c15362` | Python >=3.14,<3.15; Node >=24 | Candidate; runtime install pending |
 | ERPNext | https://github.com/frappe/erpnext | `upstream/erpnext` — v16.52.1, `ade850bbd6a7412e9994a9637d2c5c713771632a` | Frappe >=16.50,<17 | Candidate; runtime install pending |
@@ -18,4 +18,24 @@
 | Lending | https://github.com/frappe/lending | Not cloned; optional source inspection | Develop metadata requires Frappe/ERPNext >=17 | Excluded from this phase |
 | Press | https://github.com/frappe/press | Not cloned; optional source inspection | Operator platform; independently validate if needed | Deferred |
 
-The ten checked-out repositories are ignored by MiraiHR Git and must not be committed. CI installation/migration/workflow evidence, payroll regression results, transitive SBOM, separate-site API guarantees, and operational support SLAs remain unverified.
+### Reproducing the pinned sources
+
+Fresh checkout:
+
+```powershell
+git clone --recurse-submodules https://github.com/mahidhar2058/miraihr.git
+```
+
+Existing checkout:
+
+```powershell
+git submodule update --init --recursive
+```
+
+Then verify the checked-out source and gitlinks:
+
+```powershell
+python scripts/verify_upstream_sources.py
+```
+
+The submodule entries expose navigable links and pin the selected upstream revisions in MiraiHR commits. They do not copy upstream file history into MiraiHR. CI installation/migration/workflow evidence, payroll regression results, transitive SBOM, separate-site API guarantees, and operational support SLAs remain unverified. The source gate verifies source identity and license evidence; it does not approve commercial redistribution or discharge GPL/AGPL obligations.
