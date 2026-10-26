@@ -24,6 +24,10 @@ The recursive source gate checks each lock SHA against both the Git index gitlin
 
 GitHub Actions checks out with `submodules: recursive` before source verification. A fresh local checkout can use `git clone --recurse-submodules https://github.com/mahidhar2058/miraihr.git`; an existing checkout can use `git submodule update --init --recursive`. The ten upstream repositories remain pinned references, not vendored files in MiraiHR history.
 
+The observed Bench failure was `/bin/sh: redis-server: not found` during `bench init`: a Redis service container does not put the `redis-server` executable on the runner host, which Bench probes. The hosted job now installs the Ubuntu `redis-server` package and checks both that executable and the mapped Redis service, plus Python, Node, Yarn, the MariaDB client, native development libraries, and the pinned Bench CLI before initialization. The focused preflight is noninteractive and fails with a named missing prerequisite.
+
+The initial Trivy exit code `1` alone does not distinguish a HIGH/CRITICAL finding from a scanner/runtime error. The prior JSON finding artifact was not available through the connected GitHub status interface during this repair, so no exact CVE or fixed-version claim is made here. The workflow now attempts full JSON and SARIF reports against the lockfile's Linux amd64 digest before an explicit gate. A summary records the scanned digest evidence, severity counts, CVE/package/installed/fixed versions, and step outcomes. HIGH and CRITICAL findings still fail the job, including findings without a published fix. The scan remains scoped to the pinned upstream image; it says nothing about a future MiraiHR image.
+
 ## Requirements and decisions
 
 - **MHR-P0-30-01 — P0 specification; P1 implementation:** establish a reviewable design, measurable acceptance evidence, owner, dependencies, and phase mapping for github actions ci cd.

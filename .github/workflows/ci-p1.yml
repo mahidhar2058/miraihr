@@ -238,39 +238,80 @@ jobs:
           persist-credentials: false
 
       - name: Scan repository history for secrets
+        id: gitleaks
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: false
 
       - name: Read pinned upstream image digest
         id: image
+        if: always()
         shell: bash
         run: |
           image="$(jq -er '.deployment_sources.frappe_erpnext_image_candidate.image' deployment/dependencies.lock.json)"
           digest="$(jq -er '.deployment_sources.frappe_erpnext_image_candidate.linux_amd64_digest' deployment/dependencies.lock.json)"
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
           echo "ref=${image%@*}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
 
       - name: Prepare scan artifact directory
+        if: always()
         run: mkdir -p artifacts
 
-      - name: Scan pinned upstream Frappe/ERPNext base image
+      - name: Scan pinned upstream Frappe/ERPNext base image and write JSON evidence
+        id: trivy-json
+        if: always()
+        continue-on-error: true
         uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87 # v0.33.1
         with:
           scan-type: image
-          scan-ref: ${{ steps.image.outputs.ref }}
+          image-ref: ${{ steps.image.outputs.ref }}
           format: json
           output: artifacts/trivy-upstream-base-image.json
-          severity: HIGH,CRITICAL
-          exit-code: "1"
+          exit-code: "0"
           ignore-unfixed: false
 
-      - name: Upload vulnerability scan report
+      - name: Scan pinned upstream Frappe/ERPNext base image and write SARIF evidence
+        id: trivy-sarif
+        if: always()
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87 # v0.33.1
+        with:
+          scan-type: image
+          image-ref: ${{ steps.image.outputs.ref }}
+          format: sarif
+          output: artifacts/trivy-upstream-base-image.sarif
+          exit-code: "0"
+          ignore-unfixed: false
+          skip-setup-trivy: true
+
+      - name: Enforce secret-scan, digest, and HIGH/CRITICAL vulnerability policy
+        if: always()
+        env:
+          GITLEAKS_OUTCOME: ${{ steps.gitleaks.outcome }}
+          TRIVY_JSON_OUTCOME: ${{ steps.trivy-json.outcome }}
+          TRIVY_SARIF_OUTCOME: ${{ steps.trivy-sarif.outcome }}
+        run: >-
+          python scripts/evaluate_trivy_report.py
+          --json artifacts/trivy-upstream-base-image.json
+          --sarif artifacts/trivy-upstream-base-image.sarif
+          --summary artifacts/trivy-upstream-base-image-summary.json
+          --expected-digest "${{ steps.image.outputs.digest }}"
+          --scan-reference "${{ steps.image.outputs.ref }}"
+          --json-outcome "$TRIVY_JSON_OUTCOME"
+          --sarif-outcome "$TRIVY_SARIF_OUTCOME"
+          --gitleaks-outcome "$GITLEAKS_OUTCOME"
+
+      - name: Upload vulnerability scan evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: upstream-base-image-security-scan
-          path: artifacts/trivy-upstream-base-image.json
+          path: |
+            artifacts/trivy-upstream-base-image.json
+            artifacts/trivy-upstream-base-image.sarif
+            artifacts/trivy-upstream-base-image-summary.json
           if-no-files-found: warn
           retention-days: 30
