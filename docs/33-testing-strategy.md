@@ -1,14 +1,18 @@
 # Testing Strategy
 
-**Status:** P0 design baseline. **Reviewed:** 2026-10-26. Facts are marked VERIFIED, ASSUMED, or UNVERIFIED; no application feature is implemented in P0.
+**Status:** P0 design plus P1 static and hosted CI configuration; hosted run pending. **Reviewed:** 2026-10-26. No runtime test result is claimed before GitHub Actions executes.
 
 ## Purpose and scope
 
-This specification establishes the testing strategy decisions and P1 implementation gates for an independent, white-label HRMS SaaS based on supported Frappe applications. It excludes MiraiTeams, payment gateways, and P0 deployment.
+This document records the test strategy for a white-label product assembled from supported Frappe applications. Service-backed tests run only on GitHub-hosted Ubuntu as local Docker/WSL/Kubernetes runtime is prohibited.
 
 ## Area-specific design
 
-Test custom logic and integration boundaries; include cross-tenant negative tests, SSO claim abuse, migration/rollback, payroll golden fixtures, usage dedup/late events, permissions, backup restore, and dependency upgrade regressions. Production-like tests use synthetic or masked data.
+Test the small custom integration boundary and upstream applications. The configured P1 workflow covers source metadata, site creation, migrations, app test commands, native branding/assets, expected upstream workspaces and doctypes, and a synthetic Issue #134 payroll regression. Cross-tenant isolation, SSO claim abuse, usage metering, backup restore, and upgrade rollback remain future acceptance gates and are not covered by this workflow.
+
+## P1 evidence status
+
+Lightweight local validation performed to date includes Python syntax checks, JSON/TOML parsing, source/asset inspection, and `git diff --check`; these do not execute Frappe. GitHub Actions has not yet run. After a manual push, inspect workflow `MiraiHR P1 CI` and its artifacts. A failed install, migration, or test fails the integration job while preserving logs. Issue #134 fixture status must be PASS before payroll acceptance; it has not run. Cross-tenant, permission, SSO, browser interaction, and statutory payroll review remain required before commercial release.
 
 ## Requirements and decisions
 
@@ -22,7 +26,7 @@ Test custom logic and integration boundaries; include cross-tenant negative test
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
+Checked 2026-10-26. The source pins and metadata are inventoried, but same-site installation and runtime behavior remain unverified until hosted Actions runs. The test fixture for Issue #134 exists and is pending execution.
 
 - Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
 - HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning

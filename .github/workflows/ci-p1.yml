@@ -1,0 +1,252 @@
+name: MiraiHR P1 CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: miraihr-p1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-validation:
+    name: Validate pinned sources and runtime metadata
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out MiraiHR
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.14.0"
+          cache: pip
+          cache-dependency-path: apps/miraihr_core/pyproject.toml
+
+      - name: Install source validator dependency
+        run: python -m pip install --disable-pip-version-check packaging==25.0
+
+      - name: Validate exact source revisions, runtime declarations, licenses, and branding assets
+        run: |
+          python -m json.tool deployment/dependencies.lock.json >/dev/null
+          python .github/scripts/validate_sources.py
+          python - <<'PY'
+          import ast
+          import json
+          from pathlib import Path
+
+          root = Path.cwd()
+          hooks_path = root / "apps/miraihr_core/miraihr_core/hooks.py"
+          hooks = ast.parse(hooks_path.read_text(encoding="utf-8"))
+          values = {
+              node.targets[0].id: ast.literal_eval(node.value)
+              for node in hooks.body
+              if isinstance(node, ast.Assign)
+              and len(node.targets) == 1
+              and isinstance(node.targets[0], ast.Name)
+          }
+          assert values.get("app_title") == "MiraiHR"
+          assert values.get("app_logo_url") == "/assets/miraihr_core/images/miraihr-mark.svg"
+          css_hook = values.get("app_include_css")
+          assert css_hook == ["/assets/miraihr_core/css/miraihr.css"]
+          assert (root / "apps/miraihr_core/miraihr_core/public/images/miraihr-mark.svg").is_file()
+          assert (root / "apps/miraihr_core/miraihr_core/public/css/miraihr.css").is_file()
+          print(json.dumps({"branding_hooks": "pass", "assets": "pass"}, indent=2))
+          PY
+
+      - name: Upload source and license evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: upstream-source-validation
+          path: artifacts/upstream-source-validation.json
+          if-no-files-found: error
+          retention-days: 30
+
+  frappe-integration:
+    name: Install and test pinned Frappe applications
+    needs: source-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    services:
+      mariadb:
+        image: mariadb:11.8.3
+        env:
+          MARIADB_ROOT_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          MARIADB_ROOT_HOST: "%"
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+      redis:
+        image: redis:7.4.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      MARIADB_ROOT_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+      SITE_NAME: ci.localhost
+      ARTIFACT_DIR: artifacts
+    steps:
+      - name: Check out MiraiHR
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.14.0"
+          cache: pip
+          cache-dependency-path: apps/miraihr_core/pyproject.toml
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24.0.0"
+
+      - name: Cache Frappe frontend package downloads
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809
+        with:
+          path: ~/.cache/yarn
+          key: frappe-yarn-${{ runner.os }}-${{ hashFiles('deployment/dependencies.lock.json') }}
+          restore-keys: |
+            frappe-yarn-${{ runner.os }}-
+
+      - name: Install Frappe system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential \
+            curl \
+            git \
+            libbz2-dev \
+            libcairo2-dev \
+            libffi-dev \
+            libfontconfig1 \
+            libfreetype6-dev \
+            libjpeg-dev \
+            libkrb5-dev \
+            liblcms2-dev \
+            libldap2-dev \
+            libmariadb-dev \
+            libmariadb-dev-compat \
+            libopenjp2-7-dev \
+            libpq-dev \
+            libsasl2-dev \
+            libssl-dev \
+            libtiff-dev \
+            libwebp-dev \
+            pkg-config \
+            python3-dev \
+            redis-tools \
+            xvfb \
+            zlib1g-dev
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install pinned Bench CLI
+        run: python -m pip install --disable-pip-version-check frappe-bench==5.31.1
+
+      - name: Create site, install pinned apps, migrate, and run app suites
+        shell: bash
+        run: bash .github/scripts/install_stack.sh
+
+      - name: Record custom full-app image build status
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cat > artifacts/custom-app-image-build-status.json <<'JSON'
+          {
+            "status": "NOT_TESTED_BLOCKED",
+            "custom_full_app_image_build": "not tested",
+            "reason": "This workflow has no Docker BuildKit custom-image build for the six locked applications. A successful host-runner installation is not image-build evidence.",
+            "trivy_scope": "pinned upstream frappe/erpnext base image only; no MiraiHR custom image was built or scanned."
+          }
+          JSON
+
+      - name: Audit resolved Python dependencies and produce CycloneDX SBOM
+        if: always()
+        run: |
+          python -m pip install --disable-pip-version-check pip-audit==2.9.0
+          if [[ -s artifacts/python-requirements-scan.txt ]]; then
+            pip-audit \
+              --requirement artifacts/python-requirements-scan.txt \
+              --format cyclonedx-json \
+              --output artifacts/python-sbom.cdx.json
+          else
+            echo "Python environment report is missing; refusing to report a clean audit." >&2
+            exit 1
+          fi
+
+      - name: Upload installation, migration, test, license, and SBOM artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: frappe-integration-evidence
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  security:
+    name: Secret and upstream image vulnerability scans
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Check out MiraiHR
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+
+      - name: Read pinned upstream image digest
+        id: image
+        shell: bash
+        run: |
+          image="$(jq -er '.deployment_sources.frappe_erpnext_image_candidate.image' deployment/dependencies.lock.json)"
+          digest="$(jq -er '.deployment_sources.frappe_erpnext_image_candidate.linux_amd64_digest' deployment/dependencies.lock.json)"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "ref=${image%@*}@${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare scan artifact directory
+        run: mkdir -p artifacts
+
+      - name: Scan pinned upstream Frappe/ERPNext base image
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        with:
+          scan-type: image
+          scan-ref: ${{ steps.image.outputs.ref }}
+          format: json
+          output: artifacts/trivy-upstream-base-image.json
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: false
+
+      - name: Upload vulnerability scan report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: upstream-base-image-security-scan
+          path: artifacts/trivy-upstream-base-image.json
+          if-no-files-found: warn
+          retention-days: 30

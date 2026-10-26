@@ -1,14 +1,24 @@
 # Github Actions Ci Cd
 
-**Status:** P0 design baseline. **Reviewed:** 2026-10-26. Facts are marked VERIFIED, ASSUMED, or UNVERIFIED; no application feature is implemented in P0.
+**Status:** P0 design plus P1 workflow implementation; hosted run pending. **Reviewed:** 2026-10-26. No workflow result is claimed before GitHub Actions executes.
 
 ## Purpose and scope
 
-This specification establishes the github actions ci cd decisions and P1 implementation gates for an independent, white-label HRMS SaaS based on supported Frappe applications. It excludes MiraiTeams, payment gateways, and P0 deployment.
+This document records the GitHub Actions workflow for a white-label product built from supported Frappe applications. Local Docker/WSL/Kubernetes and service-backed installations are prohibited; application runtime checks use GitHub-hosted runners. No production deployment or image publishing is configured.
 
 ## Area-specific design
 
-CI builds on reviewed changes, runs static/secret/dependency checks, creates SBOM and provenance, publishes immutable image artifacts, and promotes through staging to production via reviewed Helm values. Production secrets are external; no deployment from untrusted pull requests.
+Workflow `.github/workflows/ci-p1.yml` runs on pushes to `main`, pull requests targeting `main`, and manual dispatch. It has bounded jobs on `ubuntu-24.04`, read-only repository permissions, concurrency cancellation, and pinned third-party action SHAs. Its current jobs validate pinned source metadata, install the candidate applications in a disposable hosted Bench site with MariaDB/Redis, migrate and run application suites, check native branding and upstream workspaces, and run secret/image scans. It does not build a custom all-app image, render Helm, deploy, or publish.
+
+## Implemented workflow evidence (pending first hosted run)
+
+| Job | Work and commands | Artifacts | Timeout |
+|---|---|---|---|
+| `source-validation` | `validate_sources.py` fetches immutable SHAs and checks runtime/dependency/license metadata; validates branding hook/assets | `upstream-source-validation` | 30 min |
+| `frappe-integration` | Hosted MariaDB 11.8.3 + Redis 7.4.2; Bench init, exact app checkout, requirements/assets, site creation, installs, migrate, `bench version`, site/workspace/branding HTTP checks, each app's `run-tests --app`, focused Issue #134 regression | `frappe-integration-evidence` (logs, results, license inventory, pip audit CycloneDX SBOM) | 300 min |
+| `security` | Gitleaks history scan; Trivy HIGH/CRITICAL scan of the pinned upstream `frappe/erpnext` image digest | `upstream-base-image-security-scan` | 45 min |
+
+These checks are configured, not passed. Runtime installation may expose incompatibilities; failures preserve logs and fail the job. Trivy currently scans the upstream base image only, not a MiraiHR all-app image. Artifact retention is 30 days. Estimated duration is bounded by the 300-minute integration timeout; no measured run time exists yet. Pull-request jobs receive no deployment credentials. The site/admin password is generated per run and is not a repository secret.
 
 ## Requirements and decisions
 
@@ -22,7 +32,7 @@ CI builds on reviewed changes, runs static/secret/dependency checks, creates SBO
 
 ## Evidence and status
 
-Checked 2026-10-26. Current evidence identifies stable v15 and v16 streams, but does not establish one compatible release set for all requested apps. India Payroll v16 has a release; v15 compatibility remains UNVERIFIED. Helpdesk documents v15/v16 support in its README matrix, while its develop metadata requires v16 development. Treat LMS exact branch constraints and all commercial license obligations as UNVERIFIED pending tag-level inspection.
+Checked 2026-10-26. Exact candidate source revisions and metadata are recorded in `deployment/dependencies.lock.json` and `docs/research/upstream-repository-inventory.md`. Source compatibility is plausible from declared ranges; runtime coexistence remains unverified until the hosted workflow succeeds. Issue #134 remains a payroll acceptance gate. License obligations require legal review.
 
 - Frappe and ERPNext release streams: https://github.com/frappe/frappe/releases and https://github.com/frappe/erpnext/releases
 - HRMS branch policy: https://github.com/frappe/hrms/wiki/Changes-to-branching-and-versioning
