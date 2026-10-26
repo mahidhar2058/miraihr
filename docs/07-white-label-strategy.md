@@ -12,7 +12,7 @@ Use custom app hooks, app assets, workspace configuration, translations, and sup
 
 ## P1 integration findings (2026-10-26)
 
-Frappe v16 already supports product branding through Website Settings and Navbar Settings for app name/logo, favicon, theme, and navigation presentation. The `app_logo_url`, `brand_html`, and `app_include_css` hooks remain as small extension points for MiraiHR's logo and CSS. Role-specific navigation should be configured with native Workspaces and Sidebar items; workspace visibility is not authorization, so upstream role and DocType permissions must enforce access. Core's custom landing page and navigation API were removed after reference checks confirmed they were self-contained.
+Frappe v16 already supports product branding through Website Settings and Navbar Settings for app name/logo, favicon, theme, and navigation presentation. The supported `app_logo_url`, `app_include_css`, and `web_include_css` hooks are the small extension points retained by MiraiHR Core. `brand_html` is a Website Settings field, not a hook. Role-specific navigation should be configured with native Workspaces and Sidebar items; workspace visibility is not authorization, so upstream role and DocType permissions must enforce access. Core's custom landing page and navigation API were removed after reference checks confirmed they were self-contained.
 
 No Frappe site has been installed, so login, Desk, email template, favicon, PWA, and workspace appearance are not yet validated. Configure title, logo, favicon, theme, and workspaces in the site after installation, and preserve upstream attribution and license notices.
 
@@ -28,7 +28,7 @@ No Frappe site has been installed, so login, Desk, email template, favicon, PWA,
 
 ## Evidence and status
 
-The source candidate set and exact constraints are recorded in [version compatibility](06-version-compatibility.md) and [dependency evidence](research/dependency-evidence.md). Branding support is confirmed in Frappe v16's `app_logo_url`, `brand_html`, and `app_include_css` hooks and native Website/Navbar settings. The official HR mobile guide establishes an installable PWA, not native app-store packaging: https://docs.frappe.io/hr/mobile-app-installation.
+The source candidate set and exact constraints are recorded in [version compatibility](06-version-compatibility.md) and [dependency evidence](research/dependency-evidence.md). Branding support is confirmed in Frappe v16's `app_logo_url`, `app_include_css`, and `web_include_css` hooks and native Website/Navbar settings. The official HR mobile guide establishes an installable PWA, not native app-store packaging: https://docs.frappe.io/hr/mobile-app-installation.
 
 ## Acceptance criteria
 
