@@ -147,6 +147,7 @@ jobs:
             build-essential \
             curl \
             git \
+            jq \
             libbz2-dev \
             libcairo2-dev \
             libffi-dev \
@@ -164,8 +165,13 @@ jobs:
             libssl-dev \
             libtiff-dev \
             libwebp-dev \
+            libxml2-dev \
+            libxslt1-dev \
+            mariadb-client \
+            openssl \
             pkg-config \
             python3-dev \
+            redis-server \
             redis-tools \
             xvfb \
             zlib1g-dev
@@ -174,6 +180,9 @@ jobs:
 
       - name: Install pinned Bench CLI
         run: python -m pip install --disable-pip-version-check frappe-bench==5.31.1
+
+      - name: Preflight hosted runner dependencies
+        run: bash .github/scripts/preflight_host.sh
 
       - name: Create site, install pinned apps, migrate, and run app suites
         shell: bash
