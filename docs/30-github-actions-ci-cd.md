@@ -20,6 +20,8 @@ Workflow `.github/workflows/ci-p1.yml` runs on pushes to `main`, pull requests t
 
 These checks are configured, not passed. Runtime installation may expose incompatibilities; failures preserve logs and fail the job. Trivy currently scans the upstream base image only, not a MiraiHR all-app image. Artifact retention is 30 days. Estimated duration is bounded by the 300-minute integration timeout; no measured run time exists yet. Pull-request jobs receive no deployment credentials. The site/admin password is generated per run and is not a repository secret.
 
+The source gate validates license text at immutable upstream SHAs, supports common root and `LICENSES/`/`legal/` filenames including `LICENSE.md`, records per-repository evidence, and writes `artifacts/upstream-source-validation.json` even when validation fails. Missing, empty, ambiguous, unrecognized, or lock-mismatched license text fails the gate. The first hosted run failed because the older filename allowlist omitted Helm's root `LICENSE.md`; the pinned Helm SHA was not changed. Synthetic regression tests now cover supported filenames and failure reporting.
+
 ## Requirements and decisions
 
 - **MHR-P0-30-01 — P0 specification; P1 implementation:** establish a reviewable design, measurable acceptance evidence, owner, dependencies, and phase mapping for github actions ci cd.
